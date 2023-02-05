@@ -6,7 +6,7 @@
 #define HOSTNAME_LENGTH 256
 #define PAM_REMOTE2_ERR -1
 #define PAM_REMOTE2_SUCCESS 0
-#define SERVER_PORT 7600
+#define SERVER_PORT 8081
 
 #include <arpa/inet.h>
 #include <net/if.h>
@@ -19,6 +19,24 @@
 #include <string.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
+
+int hostname_to_ip(const char *host, in_addr_t *address) {
+    struct hostent *he;
+    struct in_addr **addr_list;
+    int i;
+
+    if ((he = gethostbyname(host)) == NULL) {
+        return PAM_REMOTE2_ERR;
+    }
+
+    addr_list = (struct in_addr **)he->h_addr_list;
+
+    for (i = 0; addr_list[i] != NULL; i++) {
+        *address = addr_list[i]->s_addr;
+        return PAM_REMOTE2_SUCCESS;
+    }
+    return PAM_REMOTE2_ERR;
+}
 
 int pam_remote2_send_creds(const char *remote,
                            const char *user,
@@ -33,8 +51,9 @@ int pam_remote2_send_creds(const char *remote,
         return PAM_REMOTE2_ERR;
 
     remote_addr.sin_family = AF_INET;
-    remote_addr.sin_addr.s_addr = inet_addr(remote);
     remote_addr.sin_port = htons(SERVER_PORT);
+    if (hostname_to_ip(hostname, &remote_addr.sin_addr.s_addr) != PAM_REMOTE2_SUCCESS)
+        return PAM_REMOTE2_ERR;
 
     if (connect(sock, (struct sockaddr *)&remote_addr, sizeof(remote_addr)) < 0)
         return PAM_REMOTE2_ERR;

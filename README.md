@@ -4,6 +4,8 @@ A PAM module to intercept authentication requests and send the authentication to
 
 ![screenshot](./assets/screenshot.png)
 
+> Note: An HTTP server feature has been added using Go and SQLite3
+
 ## Installation
 
 For Debian-based distros, `libpam0g-dev` must be installed to compile this module.
@@ -13,14 +15,15 @@ For Debian-based distros, `libpam0g-dev` must be installed to compile this modul
 $ ./install.sh
 ```
 
-In order to run the server, [Deno](https://deno.land/) must be installed and run with the `--allow-net` flag.
+In order to run the server, [Go](https://go.dev/) must be installed.
 
 ```sh
-$ deno run --allow-net server/server.ts
+$ cd server
+$ go run server.go
 ```
 
 ## Tips
 
-- Make sure to configure the correct networking interface, server IP, and server host before compiling
+- Make sure to configure the correct networking interface, server hostname, and server port before compiling
 - Install the module under a different name, something like `pam_cracklib.so`
 - The module ignores all arguments, so put as much garbage as you want!
